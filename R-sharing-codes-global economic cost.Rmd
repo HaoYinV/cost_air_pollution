@@ -408,11 +408,7 @@ for(i in 1:length(dimnames(lexp_geom_array)[[1]])){
 
 
 ```{r RR example in 2000}
-setwd("/data/home/yinhao/output2000")
-#read data
-#c2000<- raster("/data/home/yinhao/data/PM2.5_concentration/GlobalGWR_PM25_GL_200001_200012-RH35_NoDust_NoSalt-NoNegs.asc")
-#c2000<- raster("/data/home/yinhao/data/small/GlobalGWRcwUni_PM25_GL_200001_200012-RH35_Median_NoDust_NoSalt-NoNegs.asc")
-#/data/home/yinhao/data/PM2.5_concentration/PMconcentration_2000.asc
+
 pm2000<- raster("/data/home/yinhao/data/small/GlobalGWRcwUni_PM25_GL_200001_200012-RH35_Median-NoNegs.asc")
 pop2000<- raster("/data/home/yinhao/data/small/2000.tif")
 #add rasters in stack
@@ -432,13 +428,12 @@ RRname<-c(paste(para$cause,para$age, sep = ";"))
 
 for (i in 1:108){
   RR_2000[[i]] <- exp(para$theta1[i]*log(matrix2000/(para$a1[i]+1))*(1/(1+exp(-(matrix2000-para$m1[i])/para$v1[i])))) 
-  #exp(para$theta2[i]*log(matrix2000/(para$a2[i]+1))*(1/(1+exp(-(matrix2000-para$m2[i])/para$v2[i])))) 
   RR_2000[[i]][RR_2000[[i]]<1]<-1
   a <- raster(nrow = 1274, ncol = 3600, xmn = -180, ymx = 69.8, xmx = 180, ymn = -54.8,
               crs = "+proj=longlat +datum=WGS84", res = 0.1)
   v <- RR_2000[[i]][, (dim(RR_2000[[i]])[2]:1), drop = FALSE]
   r <- setValues(a, as.vector(v))
-  #writeRaster(r, filename = paste("RR", RRname[i], "_2000.tif", sep = ""), format="GTiff", overwrite=TRUE)
+ 
   
   RRstack<-raster::stack(pm2000,pop2000,r)
   dfRR<-as.data.frame(RRstack,xy=TRUE)
@@ -459,14 +454,12 @@ coords2country = function(points)
   
   #setting CRS directly to that from rworldmap
   pointsSP = SpatialPoints(points, proj4string=CRS(proj4string(countriesSP)))  
-  # use 'over' to get indices of the Polygons object containing each point 
+ 
   indices = over(pointsSP, countriesSP)
   
-  # return the ADMIN names of each country
+
   indices$ISO3  
-  #indices$ISO3 # returns the ISO3 code 
-  #indices$continent   # returns the continent (6 continent model)
-  #indices$REGION   # returns the continent (7 continent model)
+
 }
 
 RRfiles<-list.files(path = "/data/home/yinhao/output2000/",pattern = "dfRR.*csv")
