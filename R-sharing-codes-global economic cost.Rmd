@@ -1,0 +1,515 @@
+---
+title: "global-economic-cost"
+author: "Hao Yin"
+date: "3/29/2021"
+output: html_document
+---
+
+```{r library pacakges}
+library(dplyr)
+library(data.table)
+library(tidyr)
+library(raster)
+library(countrycode)
+library(rgdal)
+```
+
+```{r calculate age-invariant and age-adjusted VSL}
+
+df_socio_parameter<-fread("df_socio_parameter2000_2017.csv")
+
+
+lexp_geom<-df_socio_parameter[,c("country_abb","age","gender","year","lexp_geom")]
+lexp_geom$lexp_geom<-round(lexp_geom$lexp_geom,3)
+lexp_geom_array<-xtabs(lexp_geom~country_abb+age+gender+year,lexp_geom)
+saveRDS(lexp_geom_array, "lexp_geom_array.rds")
+lexp_geom_array<-readRDS("lexp_geom_array.rds")
+
+lexp_geosd<-df_socio_parameter[,c("country_abb","age","gender","year","lexp_geosd")]
+lexp_geosd$lexp_geosd<-round(lexp_geosd$lexp_geosd,5)
+lexp_geosd_array<-xtabs(lexp_geosd~country_abb+age+gender+year,lexp_geosd)
+
+saveRDS(lexp_geosd_array, "lexp_geosd_array.rds")
+lexp_geosd_array<-readRDS("lexp_geosd_array.rds")
+
+
+survival_geom<-df_socio_parameter[,c("country_abb","age","gender","year","survival_geom")]
+survival_geom$survival_geom<-round(survival_geom$survival_geom,3)
+survival_geom_array<-xtabs(survival_geom~country_abb+age+gender+year,survival_geom)
+saveRDS(survival_geom_array, "survival_geom_array.rds")
+survival_geom_array<-readRDS("survival_geom_array.rds")
+
+
+
+survival_geosd<-df_socio_parameter[,c("country_abb","age","gender","year","survival_geosd")]
+survival_geosd$survival_geosd<-round(survival_geosd$survival_geosd,4)
+survival_geosd_array<-xtabs(survival_geosd~country_abb+age+gender+year,survival_geosd)
+
+saveRDS(survival_geosd_array, "survival_geosd_array.rds")
+survival_geosd_array<-readRDS("survival_geosd_array.rds")
+
+
+#wealthratio
+wealthratio_geom<-df_socio_parameter[,c("country_abb","age","gender","year","wealthratio_geom")]
+wealthratio_geom$wealthratio_geom<-round(wealthratio_geom$wealthratio_geom,3)
+wealthratio_geom_array<-xtabs(wealthratio_geom~country_abb+age+gender+year,wealthratio_geom)
+
+saveRDS(wealthratio_geom_array, "wealthratio_geom_array.rds")
+wealthratio_geom_array<-readRDS("wealthratio_geom_array.rds")
+
+
+wealthratio_geosd<-df_socio_parameter[,c("country_abb","age","gender","year","wealthratio_geosd")]
+wealthratio_geosd$wealthratio_geosd<-round(wealthratio_geosd$wealthratio_geosd,3)
+wealthratio_geosd_array<-xtabs(wealthratio_geosd~country_abb+age+gender+year,wealthratio_geosd)
+
+saveRDS(wealthratio_geosd_array, "wealthratio_geosd_array.rds")
+wealthratio_geosd_array<-readRDS("wealthratio_geosd_array.rds")
+
+#discsurv
+discsurv_geom<-df_socio_parameter[,c("country_abb","age","gender","year","discsurv_geom")]
+discsurv_geom$discsurv_geom<-round(discsurv_geom$discsurv_geom,3)
+discsurv_geom_array<-xtabs(discsurv_geom~country_abb+age+gender+year,discsurv_geom)
+
+
+saveRDS(discsurv_geom_array, "discsurv_geom_array.rds")
+discsurv_geom_array<-readRDS("discsurv_geom_array.rds")
+
+discsurv_geosd<-df_socio_parameter[,c("country_abb","age","gender","year","discsurv_geosd")]
+discsurv_geosd$discsurv_geosd<-round(discsurv_geosd$discsurv_geosd,4)
+discsurv_geosd_array<-xtabs(discsurv_geosd~country_abb+age+gender+year,discsurv_geosd)
+
+saveRDS(discsurv_geosd_array, "discsurv_geosd_array.rds")
+discsurv_geosd_array<-readRDS("discsurv_geosd_array.rds")
+
+
+#elasticity
+elasticity_geom<-df_socio_parameter[,c("country_abb","age","gender","year","elasticity_geom")]
+elasticity_geom$elasticity_geom<-round(elasticity_geom$elasticity_geom,3)
+elasticity_geom_array<-xtabs(elasticity_geom~country_abb+age+gender+year,elasticity_geom)
+
+
+saveRDS(elasticity_geom_array, "elasticity_geom_array.rds")
+elasticity_geom_array<-readRDS("elasticity_geom_array.rds")
+
+elasticity_geosd<-df_socio_parameter[,c("country_abb","age","gender","year","elasticity_geosd")]
+elasticity_geosd$elasticity_geosd<-round(elasticity_geosd$elasticity_geosd,3)
+elasticity_geosd_array<-xtabs(elasticity_geosd~country_abb+age+gender+year,elasticity_geosd)
+
+
+saveRDS(elasticity_geosd_array, "elasticity_geosd_array.rds")
+elasticity_geosd_array<-readRDS("elasticity_geosd_array.rds")
+
+#lexpctr
+lexpctr_geom<-df_socio_parameter[,c("country_abb","age","gender","year","lexpctr_geom")]
+lexpctr_geom$lexpctr_geom<-round(lexpctr_geom$lexpctr_geom,3)
+lexpctr_geom_array<-xtabs(lexpctr_geom~country_abb+age+gender+year,lexpctr_geom)
+
+saveRDS(lexpctr_geom_array, "lexpctr_geom_array.rds")
+lexpctr_geom_array<-readRDS("lexpctr_geom_array.rds")
+
+
+lexpctr_geosd<-df_socio_parameter[,c("country_abb","age","gender","year","lexpctr_geosd")]
+lexpctr_geosd$lexpctr_geosd<-round(lexpctr_geosd$lexpctr_geosd,5)
+lexpctr_geosd_array<-xtabs(lexpctr_geosd~country_abb+age+gender+year,lexpctr_geosd)
+
+saveRDS(lexpctr_geosd_array, "lexpctr_geosd_array.rds")
+lexpctr_geosd_array<-readRDS("lexpctr_geosd_array.rds")
+
+
+#vsloecd geom
+vsloecd_geom<-df_socio_parameter[,c("country_abb","age","gender","year","vsloecd_geom")]
+
+
+vsloecd_geom$vsloecd_geom<-round(vsloecd_geom$vsloecd_geom,3)
+vsloecd_geom_array<-xtabs(vsloecd_geom~country_abb+age+gender+year,vsloecd_geom)
+summary(vsloecd_geom)
+saveRDS(vsloecd_geom_array, "vsloecd_geom_array.rds")
+vsloecd_geom_array<-readRDS("vsloecd_geom_array.rds")
+#vsloecd geosd
+vsloecd_geosd<-df_socio_parameter[,c("country_abb","age","gender","year","vsloecd_geosd")]
+vsloecd_geosd$vsloecd_geosd<-round(vsloecd_geosd$vsloecd_geosd,3)
+vsloecd_geosd_array<-xtabs(vsloecd_geosd~country_abb+age+gender+year,vsloecd_geosd)
+
+saveRDS(vsloecd_geosd_array, "vsloecd_geosd_array.rds")
+vsloecd_geosd_array<-readRDS("vsloecd_geosd_array.rds")
+
+#GDP by country
+GDPpercapita_ppp2011<-df_socio_parameter[,c("country_abb","age","gender","year","GDPpercapita_ppp2011")]
+GDPpercapita_ppp2011$GDPpercapita_ppp2011<-round(GDPpercapita_ppp2011$GDPpercapita_ppp2011,1)
+subset(GDPpercapita_ppp2011,country_abb=="GEO")
+GDPpercapita_ppp2011_array<-xtabs(GDPpercapita_ppp2011~country_abb+age+gender+year,GDPpercapita_ppp2011)
+
+saveRDS(GDPpercapita_ppp2011_array, "GDPpercapita_ppp2011_array.rds")
+GDPpercapita_ppp2011_array<-readRDS("GDPpercapita_ppp2011_array.rds")
+
+#GDP oecd
+gdp_oecd2011<-df_socio_parameter[,c("country_abb","age","gender","year","gdp_oecd2011")]
+gdp_oecd2011$gdp_oecd2011<-round(gdp_oecd2011$gdp_oecd2011,1)
+
+gdp_oecd2011_array<-xtabs(gdp_oecd2011~country_abb+age+gender+year,gdp_oecd2011)
+
+saveRDS(gdp_oecd2011_array, "gdp_oecd2011_array.rds")
+gdp_oecd2011_array<-readRDS("gdp_oecd2011_array.rds")
+#lexpratio
+lexp_ratio<-df_socio_parameter[,c("country_abb","age","gender","year","lexp_ratio")]
+lexp_ratio$lexp_ratio<-round(lexp_ratio$lexp_ratio,2)
+lexp_ratio_array<-xtabs(lexp_ratio~country_abb+age+gender+year,lexp_ratio)
+saveRDS(lexp_ratio_array, "lexp_ratio_array.rds")
+lexp_ratio_array<-readRDS("lexp_ratio_array.rds")
+#discount
+discount<-df_socio_parameter[,c("country_abb","age","gender","year","discount")]
+discount_array<-xtabs(discount~country_abb+age+gender+year,discount)
+
+#create arrays for monte carlo simulation
+vsl<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+
+vsly_ctr<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+
+vsl_age<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+
+vsly_age<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+vsly_sum<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+
+lexp<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+survival<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+wealthratio<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+discsurv<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+elasticity<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+lexpctr<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+vsloecd<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          length(c(1:simulation))),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c(1:simulation)))
+
+#simulation=3
+
+for(n in 1:simulation){
+  for(i in 1:length(dimnames(lexp_geom_array)[[1]])){
+    for(j in 1:length(dimnames(lexp_geom_array)[[2]])){
+      for(k in 1:length(dimnames(lexp_geom_array)[[3]])){
+        for(l in 1:length(dimnames(lexp_geom_array)[[4]])){
+          lexp[i,j,k,l,n]<-rlnorm(1,lexp_geom_array[i,j,k,l],lexp_geosd_array[i,j,k,l])
+          survival[i,j,k,l,n]<-rlnorm(1,survival_geom_array[i,j,k,l],survival_geosd_array[i,j,k,l])
+          wealthratio[i,j,k,l,n]<-rlnorm(1,wealthratio_geom_array[i,j,k,l],wealthratio_geosd_array[i,j,k,l])
+          discsurv[i,j,k,l,n]<-rlnorm(1,discsurv_geom_array[i,j,k,l],discsurv_geosd_array[i,j,k,l])
+          elasticity[i,j,k,l,n]<-rlnorm(1,elasticity_geom_array[i,j,k,l],elasticity_geosd_array[i,j,k,l])
+          lexpctr[i,j,k,l,n]<-rlnorm(1,lexpctr_geom_array[i,j,k,l],lexpctr_geosd_array[i,j,k,l])
+          vsloecd[i,j,k,l,n]<-rlnorm(1,vsloecd_geom_array[i,j,k,l],vsloecd_geosd_array[i,j,k,l])
+          
+          vsl[i,j,k,l,n]<-vsloecd[i,j,k,l,n]*(GDPpercapita_ppp2011_array[i,j,k,l]/gdp_oecd2011_array[i,j,k,l])^elasticity[i,j,k,l,n]
+          vsly_ctr[i,j,k,l,n]<-(vsl[i,j,k,l,n]*discount_array[i,j,k,l])/(1-1/(1+discount_array[i,j,k,l])^lexpctr[i,j,k,l,n])
+          vsl_age[i,j,k,l,n] <- vsloecd[i,j,k,l,n]*(GDPpercapita_ppp2011_array[i,j,k,l]/gdp_oecd2011_array[i,j,k,l])^elasticity[i,j,k,l,n]*lexp_ratio_array[i,j,k,l]*wealthratio[i,j,k,l,n]
+          vsly_age[i,j,k,l,n]<-vsl_age[i,j,k,l,n]/discsurv[i,j,k,l,n]
+          vsly_sum[i,j,k,l,n]<-vsly_ctr[i,j,k,l,n]*(1-1/(1+discount_array[i,j,k,l])^lexp[i,j,k,l,n])/discount_array[i,j,k,l]
+        }
+      }
+    }
+  }
+  saveRDS(vsl,"vsl.rds")
+  saveRDS(vsly_ctr,"vsly_ctr.rds")
+  saveRDS(vsl_age,"vsl_age.rds")
+  saveRDS(vsly_age,"vsly_age.rds")
+  saveRDS(vsly_sum,"vsly_sum.rds")
+}
+
+print("1000 simulation done")
+
+
+#calculate confidence interval lognormal
+
+
+vsl<-readRDS("vsl.rds")
+vsly_ctr<-readRDS("vsly_ctr.rds")
+vsl_age<-readRDS("vsl_age.rds")
+vsly_age<-readRDS("vsly_age.rds")
+vsly_sum<-readRDS("vsly_sum.rds")
+
+vsl_ci95<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          3),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                               c("vsl_mean","vsl_lower","vsl_upper")))
+
+
+
+
+vsly_ci95<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          3),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                                c("vsly_mean","vsly_lower","vsly_upper")))
+vsl_age_ci95<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          3),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                                c("vsl_age_mean","vsl_age_lower","vsl_age_upper")))
+vsly_age_ci95<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          3),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                                c("vsly_age_mean","vsly_age_lower","vsly_age_upper")))
+vsly_sum_ci95<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
+                          length(dimnames(lexp_geom_array)[[2]]),
+                          length(dimnames(lexp_geom_array)[[3]]),
+                          length(dimnames(lexp_geom_array)[[4]]),
+                          3),
+               dimnames = list(dimnames(lexp_geom_array)[[1]],
+                               dimnames(lexp_geom_array)[[2]],
+                               dimnames(lexp_geom_array)[[3]],
+                               dimnames(lexp_geom_array)[[4]],
+                                c("vsly_sum_mean","vsly_sum_lower","vsly_sum_upper")))
+
+for(i in 1:length(dimnames(lexp_geom_array)[[1]])){
+  for(j in 1:length(dimnames(lexp_geom_array)[[2]])){
+    for(k in 1:length(dimnames(lexp_geom_array)[[3]])){
+      for(l in 1:length(dimnames(lexp_geom_array)[[4]])){
+        vsl_ci95[i,j,k,l,] <-(MeanCI(vsl[i,j,k,l,], conf.level = 0.95, method = "boot",na.rm = T))
+        vsly_ci95[i,j,k,l,] <-(MeanCI(vsly_ctr[i,j,k,l,], conf.level = 0.95, method = "boot",na.rm = T))
+        vsl_age_ci95[i,j,k,l,] <-(MeanCI(vsl_age[i,j,k,l,], conf.level = 0.95, method = "boot",na.rm = T))
+        vsly_age_ci95[i,j,k,l,] <-(MeanCI(vsly_age[i,j,k,l,], conf.level = 0.95, method = "boot",na.rm = T))
+        vsly_sum_ci95[i,j,k,l,] <-(MeanCI(vsly_sum[i,j,k,l,], conf.level = 0.95, method = "boot",na.rm = T))
+        
+      }
+    }
+  }
+  saveRDS(vsl_ci95,"vsl_ci95.rds")
+  saveRDS(vsly_ci95,"vsly_ci95.rds")
+  saveRDS(vsl_age_ci95,"vsl_age_ci95.rds")
+  saveRDS(vsly_age_ci95,"vsly_age_ci95.rds")
+  saveRDS(vsly_sum_ci95,"vsly_sum_ci95.rds")
+}
+
+```
+
+
+```{r RR example in 2000}
+setwd("/data/home/yinhao/output2000")
+#read data
+#c2000<- raster("/data/home/yinhao/data/PM2.5_concentration/GlobalGWR_PM25_GL_200001_200012-RH35_NoDust_NoSalt-NoNegs.asc")
+#c2000<- raster("/data/home/yinhao/data/small/GlobalGWRcwUni_PM25_GL_200001_200012-RH35_Median_NoDust_NoSalt-NoNegs.asc")
+#/data/home/yinhao/data/PM2.5_concentration/PMconcentration_2000.asc
+pm2000<- raster("/data/home/yinhao/data/small/GlobalGWRcwUni_PM25_GL_200001_200012-RH35_Median-NoNegs.asc")
+pop2000<- raster("/data/home/yinhao/data/small/2000.tif")
+#add rasters in stack
+pm_pop<-raster::stack(pm2000,pop2000)
+c2000<-as.data.frame(pm_pop,xy=TRUE)
+names(c2000)<-c("x","y","pm","pop")
+
+v<-t(as.matrix(pm2000)-2.4)
+v[v<0]<-0
+v<-t(as.matrix(pm2000))
+matrix2000 <- v[, (dim(v)[2]:1), drop = FALSE] 
+str(matrix2000)
+
+RR_2000<-list()
+para<-read.csv("/data/home/yinhao/data/parameters/parameters_update_allagegroups.csv")
+RRname<-c(paste(para$cause,para$age, sep = ";"))
+
+for (i in 1:108){
+  RR_2000[[i]] <- exp(para$theta1[i]*log(matrix2000/(para$a1[i]+1))*(1/(1+exp(-(matrix2000-para$m1[i])/para$v1[i])))) 
+  #exp(para$theta2[i]*log(matrix2000/(para$a2[i]+1))*(1/(1+exp(-(matrix2000-para$m2[i])/para$v2[i])))) 
+  RR_2000[[i]][RR_2000[[i]]<1]<-1
+  a <- raster(nrow = 1274, ncol = 3600, xmn = -180, ymx = 69.8, xmx = 180, ymn = -54.8,
+              crs = "+proj=longlat +datum=WGS84", res = 0.1)
+  v <- RR_2000[[i]][, (dim(RR_2000[[i]])[2]:1), drop = FALSE]
+  r <- setValues(a, as.vector(v))
+  #writeRaster(r, filename = paste("RR", RRname[i], "_2000.tif", sep = ""), format="GTiff", overwrite=TRUE)
+  
+  RRstack<-raster::stack(pm2000,pop2000,r)
+  dfRR<-as.data.frame(RRstack,xy=TRUE)
+  names(dfRR)<-c("x","y","pm","pop","RR")
+  dfRR$cause<-para$cause[i]
+  dfRR$age<-para$age[i]
+  write.csv(dfRR,file = paste("dfRR",RRname[i], "_2000.csv",sep = ""), row.names=FALSE)
+}
+
+coords2country = function(points)
+{  
+  countriesSP <- getMap(resolution='high')
+  #countriesSP <- getMap(resolution='high') #you could use high res map from rworldxtra if you were concerned about detail
+  
+  # convert our list of points to a SpatialPoints object
+  
+  pointsSP = SpatialPoints(points, proj4string=CRS(" +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0"))
+  
+  #setting CRS directly to that from rworldmap
+  pointsSP = SpatialPoints(points, proj4string=CRS(proj4string(countriesSP)))  
+  # use 'over' to get indices of the Polygons object containing each point 
+  indices = over(pointsSP, countriesSP)
+  
+  # return the ADMIN names of each country
+  indices$ISO3  
+  #indices$ISO3 # returns the ISO3 code 
+  #indices$continent   # returns the continent (6 continent model)
+  #indices$REGION   # returns the continent (7 continent model)
+}
+
+RRfiles<-list.files(path = "/data/home/yinhao/output2000/",pattern = "dfRR.*csv")
+for (RR in RRfiles){
+  dfRR<-fread(RR)
+  points<-as.data.frame(dfRR[,c(1:2)])
+  points$country_abb <- coords2country(points)
+  RRctr<-merge(points,dfRR, by=c("x","y"))
+  RRctr$pop[is.na(RRctr$pop)]<-0
+  RRctr$pop<-round(RRctr$pop,2)
+  RRctr$year<-2000
+  levels<-levels(RRctr$country_abb)
+  levels[length(levels)+1]<-"unknown"
+  RRctr$country_abb<-factor(RRctr$country_abb, levels = levels)
+  RRctr$country_abb[is.na(RRctr$country_abb)]<- "unknown"
+  write.csv(RRctr, file = paste("RRctr",dfRR$cause[1], dfRR$age[1], "_2000.csv", sep = ""),row.names = FALSE)
+}
+#deaths cost
+df_mort<-fread("/data/home/yinhao/data/mortality_data_simulation/mortality_lifeexpectancy/df_mort_NCDLRI_5COD.csv")
+lexp_baseline<-fread("/data/home/yinhao/data/mortality_data_simulation/mortality_lifeexpectancy/lexp.csv")
+
+RRctrfiles<-list.files(path = "/data/home/yinhao/output2000/",pattern = "RRctr.*csv")
+for (dfRRctr in RRctrfiles){
+  dfRRctr<- fread(dfRRctr)
+  dfRR_prop_gender_mort<- merge(dfRRctr, mortality_long, by=c("country_abb","year","age","cause"), allow.cartesian=TRUE)
+  dfRR_prop_gender_mort_sur_lexp_vsl<-merge(dfRR_prop_gender_mort, df_cumsurv_vsl_gender_pop, by=c("country_abb","gender","year","age"), all.x=TRUE)
+  #calculate deaths
+  dfRR_prop_gender_mort_sur_lexp_vsl$death<-dfRR_prop_gender_mort_sur_lexp_vsl$mortality*(1-1/dfRR_prop_gender_mort_sur_lexp_vsl$RR)*
+    dfRR_prop_gender_mort_sur_lexp_vsl$pop*dfRR_prop_gender_mort_sur_lexp_vsl$proportion
+  
+  dfRR_prop_gender_mort_sur_lexp_vsl$YLL<-dfRR_prop_gender_mort_sur_lexp_vsl$death*dfRR_prop_gender_mort_sur_lexp_vsl$lexp
+  write.csv(dfRR_prop_gender_mort_sur_lexp_vsl,file= paste("RR_prop_gender_mort_sur_lexp_vsl",dfRRctr$cause[1], dfRRctr$age[1],"_2000.csv",sep = ""),row.names = FALSE)
+  
+  dfloss<-dfRR_prop_gender_mort_sur_lexp_vsl
+  rm(dfRR_prop_gender_mort_sur_lexp_vsl)
+  dfloss$lossvsl<-dfloss$death*dfloss$vsl
+  dfloss$lossvsly<-dfloss$death*dfloss$vsly_ctr*(1-1/(1+dfloss$discount)^dfloss$lexp)/dfloss$discount
+  dfloss$lossvslage<-dfloss$death*dfloss$vsl_age
+  dfloss$lossvslyage<-dfloss$death*dfloss$vsly_age_sum
+  write.csv(dfloss,file = paste("economicloss",dfRRctr$cause[1], dfRRctr$age[1], "_2000.csv", sep = ""),row.names = FALSE)
+}
+
+
+```
+
+
