@@ -286,19 +286,19 @@ vsloecd<-array(NA,dim = c(length(dimnames(lexp_geom_array)[[1]]),
                                dimnames(lexp_geom_array)[[4]],
                                c(1:simulation)))
 
-#simulation=3
+simulation=1000
 
 for(n in 1:simulation){
   for(i in 1:length(dimnames(lexp_geom_array)[[1]])){
     for(j in 1:length(dimnames(lexp_geom_array)[[2]])){
       for(k in 1:length(dimnames(lexp_geom_array)[[3]])){
         for(l in 1:length(dimnames(lexp_geom_array)[[4]])){
-          lexp[i,j,k,l,n]<-rlnorm(1,lexp_geom_array[i,j,k,l],lexp_geosd_array[i,j,k,l])
-          survival[i,j,k,l,n]<-rlnorm(1,survival_geom_array[i,j,k,l],survival_geosd_array[i,j,k,l])
+          lexp[i,j,k,l,n]<-rnorm(1,lexp_geom_array[i,j,k,l],lexp_geosd_array[i,j,k,l])
+          survival[i,j,k,l,n]<-rnorm(1,survival_geom_array[i,j,k,l],survival_geosd_array[i,j,k,l])
           wealthratio[i,j,k,l,n]<-rlnorm(1,wealthratio_geom_array[i,j,k,l],wealthratio_geosd_array[i,j,k,l])
           discsurv[i,j,k,l,n]<-rlnorm(1,discsurv_geom_array[i,j,k,l],discsurv_geosd_array[i,j,k,l])
           elasticity[i,j,k,l,n]<-rlnorm(1,elasticity_geom_array[i,j,k,l],elasticity_geosd_array[i,j,k,l])
-          lexpctr[i,j,k,l,n]<-rlnorm(1,lexpctr_geom_array[i,j,k,l],lexpctr_geosd_array[i,j,k,l])
+          lexpctr[i,j,k,l,n]<-rnorm(1,lexpctr_geom_array[i,j,k,l],lexpctr_geosd_array[i,j,k,l])
           vsloecd[i,j,k,l,n]<-rlnorm(1,vsloecd_geom_array[i,j,k,l],vsloecd_geosd_array[i,j,k,l])
           
           vsl[i,j,k,l,n]<-vsloecd[i,j,k,l,n]*(GDPpercapita_ppp2011_array[i,j,k,l]/gdp_oecd2011_array[i,j,k,l])^elasticity[i,j,k,l,n]
@@ -407,7 +407,7 @@ for(i in 1:length(dimnames(lexp_geom_array)[[1]])){
 ```
 
 
-```{r RR example in 2000}
+```{r RR, deaths, YLL and health cost estimates example codes}
 
 pm2000<- raster("/data/home/yinhao/data/small/GlobalGWRcwUni_PM25_GL_200001_200012-RH35_Median-NoNegs.asc")
 pop2000<- raster("/data/home/yinhao/data/small/2000.tif")
