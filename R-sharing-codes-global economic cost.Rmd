@@ -409,21 +409,21 @@ for(i in 1:length(dimnames(lexp_geom_array)[[1]])){
 
 ```{r RR, deaths, YLL and health cost estimates example codes}
 
-pm2000<- raster("/data/home/yinhao/data/small/GlobalGWRcwUni_PM25_GL_200001_200012-RH35_Median-NoNegs.asc")
-pop2000<- raster("/data/home/yinhao/data/small/2000.tif")
+pm2000<- raster("GlobalGWRcwUni_PM25_GL_200001_200012-RH35_Median-NoNegs.asc")
+pop2000<- raster("2000.tif")
 #add rasters in stack
 pm_pop<-raster::stack(pm2000,pop2000)
 c2000<-as.data.frame(pm_pop,xy=TRUE)
 names(c2000)<-c("x","y","pm","pop")
 
-v<-t(as.matrix(pm2000)-2.4)
+v<-t(as.matrix(pm2000)-tmrel)
 v[v<0]<-0
 v<-t(as.matrix(pm2000))
 matrix2000 <- v[, (dim(v)[2]:1), drop = FALSE] 
 str(matrix2000)
 
 RR_2000<-list()
-para<-read.csv("/data/home/yinhao/data/parameters/parameters_update_allagegroups.csv")
+para<-read.csv("parameters_update_allagegroups.csv")
 RRname<-c(paste(para$cause,para$age, sep = ";"))
 
 for (i in 1:108){
@@ -478,10 +478,10 @@ for (RR in RRfiles){
   write.csv(RRctr, file = paste("RRctr",dfRR$cause[1], dfRR$age[1], "_2000.csv", sep = ""),row.names = FALSE)
 }
 #deaths cost
-df_mort<-fread("/data/home/yinhao/data/mortality_data_simulation/mortality_lifeexpectancy/df_mort_NCDLRI_5COD.csv")
-lexp_baseline<-fread("/data/home/yinhao/data/mortality_data_simulation/mortality_lifeexpectancy/lexp.csv")
+df_mort<-fread("df_mort_NCDLRI_5COD.csv")
+lexp_baseline<-fread("lexp.csv")
 
-RRctrfiles<-list.files(path = "/data/home/yinhao/output2000/",pattern = "RRctr.*csv")
+RRctrfiles<-list.files(path = "",pattern = "RRctr.*csv")
 for (dfRRctr in RRctrfiles){
   dfRRctr<- fread(dfRRctr)
   dfRR_prop_gender_mort<- merge(dfRRctr, mortality_long, by=c("country_abb","year","age","cause"), allow.cartesian=TRUE)
